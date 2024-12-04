@@ -1,87 +1,93 @@
 version: '3.8'
 
 services:
+  backend-echo:
+    container_name: backend-echo
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: /app/echo
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgrespassword"
+      POSTGRES_DB: "NotebookApp"
+      POSTGRES_HOST: "postgres"
+      GOMAXPROC: 1
+    networks:
+      - noteappnetwork
+    ports:
+      - "8081:8081"
+
+  backend-gin:
+    container_name: backend-gin
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: /app/gin
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgrespassword"
+      POSTGRES_DB: "NotebookApp"
+      POSTGRES_HOST: "postgres"
+      GOMAXPROC: 1
+    networks:
+      - noteappnetwork
+    ports:
+      - "8082:8081"
+
+  backend-chi:
+    container_name: backend-chi
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: /app/chi
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "postgrespassword"
+      POSTGRES_DB: "NotebookApp"
+      POSTGRES_HOST: "postgres"
+      GOMAXPROC: 1
+    networks:
+      - noteappnetwork
+    ports:
+      - "8083:8081"
+
   postgres:
     container_name: postgres_container
-
-    image: postgres:latest
-    
+    image: bitnami/postgresql:16
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "postgrespassword"
       POSTGRES_DB: "NotebookApp"
       PGDATA: /var/lib/postgresql/data/pgdata
-
     volumes:
-      - ./initdb:/docker-entrypoint-initdb.d
-      - .:/var/lib/postgresql/data
-    
+      - ./initdb/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./data/dbpgdata:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    
     networks:
       - noteappnetwork
-    
     restart: unless-stopped
 
   
   pgadmin:
     container_name: pgadmin_container
-    
     image: dpage/pgadmin4:latest
-    
     environment:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL:-pgadmin4@pgadmin.org}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD:-admin}
       PGADMIN_CONFIG_SERVER_MODE: 'False'
-    
     ports:
       - "5050:80"
-    
     networks:
       - noteappnetwork
-    
     restart: unless-stopped  
-
-  
-  note_app_backend:
-    container_name: backend_container
-    stdin_open: true # docker run -i
-    tty: true        # docker run -t
-
-    build:
-      context: .
-      dockerfile: Dockerfile
-
-    ports:
-     - "13338:13338"
-
-    volumes:
-     - ./log:/notebookapp/log
-     - ./config:/notebookapp/config
-
-    depends_on:
-     - postgres
-
-    networks:
-     - noteappnetwork
-
-  clickhouse_server:
-    image: yandex/clickhouse-server
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-      - "9009:9009"
-
-    ulimits:
-      nproc: 65535
-      nofile:
-        soft: 262144
-        hard: 262144
-
-  clickhouse_client:
-      image: yandex/clickhouse-client
-      command: [ '--host', 'server' ]
 
 networks:
   noteappnetwork:

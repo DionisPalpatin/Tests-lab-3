@@ -15,16 +15,15 @@ func main() {
 	router := chi.NewRouter()
 	router.Use(middleware.Logger)
 
-	userRepo := database.Connect()
-	if userRepo == nil {
+	userRepository := database.Connect()
+	if userRepository == nil {
 		panic("cant init repo")
 	}
 
-	// /metrics endpoint
 	router.Handle("/metrics", promhttp.Handler())
 
 	router.Get("/users", func(w http.ResponseWriter, r *http.Request) {
-		users, err := userRepo.GetAllUsersData()
+		users, err := userRepository.GetAllUsersData()
 		if err != nil && err.ErrNum != myerrors.Ok {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
