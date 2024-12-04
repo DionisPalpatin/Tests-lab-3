@@ -6,6 +6,8 @@ import (
 	"os"
 	"time"
 
+	_ "github.com/lib/pq"
+
 	repos "github.com/DionisPalpatin/Tests-lab-3/tree/main/backend/internal/repos"
 )
 
