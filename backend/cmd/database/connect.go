@@ -31,5 +31,5 @@ func Connect() repos.IUserRepository {
 		}
 	}
 
-	return data_access.NewUserRepository(db)
+	return repos.NewUserRepository(db)
 }

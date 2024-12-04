@@ -1,12 +1,19 @@
-FROM golang:latest
+FROM golang:1.23 AS build
 
-WORKDIR /notebookapp
+WORKDIR /go/src/app
 
 COPY . .
 
-# RUN go get github.com/DionisPalpatin/ppo-and-db/tree/master/application/internal/UI/TechUI
+RUN go build -o echo cmd/echo/main.go
+RUN go build -o chi cmd/chi/main.go
+RUN go build -o gin cmd/gin/main.go
 
-RUN rm -rf /notebookapp/internal/UI/GUI && \
-    go build -o main.exe cmd/main.go
+# #=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====#=====
 
-CMD ["/notebookapp/main.exe"]
+FROM debian:bookworm-slim
+
+COPY --from=build /go/src/app/echo /app/echo
+COPY --from=build /go/src/app/chi /app/chi
+COPY --from=build /go/src/app/gin /app/gin
+
+WORKDIR /app
