@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	bl "github.com/DionisPalpatin/ppo-and-db/tree/master/application/internal/business_logic"
-	"github.com/DionisPalpatin/ppo-and-db/tree/master/application/internal/database"
+	myerrors "github.com/DionisPalpatin/Tests-lab-3/tree/main/backend/internal/myerrors"
+	"github.com/DionisPalpatin/Tests-lab-3/tree/main/backend/cmd/database"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
@@ -25,7 +25,7 @@ func main() {
 
 	router.Get("/users", func(w http.ResponseWriter, r *http.Request) {
 		users, err := userRepo.GetAllUsersData()
-		if err != nil && err.ErrNum != bl.Ok {
+		if err != nil && err.ErrNum != myerrors.Ok {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusInternalServerError)
 			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})

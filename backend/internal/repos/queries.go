@@ -1,4 +1,4 @@
-package data_access
+package repos
 
 // Users queries
 const (

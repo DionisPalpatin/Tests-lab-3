@@ -1,4 +1,4 @@
-package bl
+package myerrors
 
 import (
 	"fmt"

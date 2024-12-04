@@ -1,4 +1,4 @@
-package data_access
+package repos
 
 import (
 	"context"
@@ -6,19 +6,19 @@ import (
 	"errors"
 	"fmt"
 
-	bl "github.com/DionisPalpatin/ppo-and-db/tree/master/application/internal/business_logic"
-	"github.com/DionisPalpatin/ppo-and-db/tree/master/application/internal/models"
+	myerrors "github.com/DionisPalpatin/Tests-lab-3/tree/main/backend/internal/myerrors"
+	"github.com/DionisPalpatin/Tests-lab-3/tree/main/backend/internal/models"
 )
 
 type IUserRepository interface {
-	GetUserByID(id int) (*models.User, *bl.MyError)
-	GetUserByLogin(login string) (*models.User, *bl.MyError)
-	GetAllUsers() ([]*models.User, *bl.MyError)
-	AddUser(user *models.User) *bl.MyError
-	DeleteUser(id int) *bl.MyError
-	UpdateUser(user *models.User) *bl.MyError
+	GetUserByID(id int) (*models.User, *myerrors.MyError)
+	GetUserByLogin(login string) (*models.User, *myerrors.MyError)
+	GetAllUsers() ([]*models.User, *myerrors.MyError)
+	AddUser(user *models.User) *myerrors.MyError
+	DeleteUser(id int) *myerrors.MyError
+	UpdateUser(user *models.User) *myerrors.MyError
 
-	GetAllUsersData() ([]*models.User, *bl.MyError)
+	GetAllUsersData() ([]*models.User, *myerrors.MyError)
 }
 
 type UserRepository struct {
@@ -37,9 +37,9 @@ func deferTransaction(err error, tx *sql.Tx) {
 	}
 }
 
-func (ur *UserRepository) GetUserByID(id int) (*models.User, *bl.MyError) {
+func (ur *UserRepository) GetUserByID(id int) (*models.User, *myerrors.MyError) {
 	if id < 0 {
-		resState := bl.CreateError(bl.NoSuchUser, "GetUserByID", "data_access")
+		resState := myerrors.CreateError(myerrors.NoSuchUser, "GetUserByID", "data_access")
 		return nil, resState
 	}
 
@@ -57,24 +57,24 @@ func (ur *UserRepository) GetUserByID(id int) (*models.User, *bl.MyError) {
 	)
 
 	if err != nil {
-		var resState *bl.MyError
+		var resState *myerrors.MyError
 
 		if errors.Is(err, sql.ErrNoRows) {
-			resState = bl.CreateError(bl.NoSuchUser, "GetUserByID", "data_access")
+			resState = myerrors.CreateError(myerrors.NoSuchUser, "GetUserByID", "data_access")
 		} else {
-			resState = bl.CreateError(bl.DatabaseError, "GetUserByID", "data_access")
+			resState = myerrors.CreateError(myerrors.DatabaseError, "GetUserByID", "data_access")
 		}
 
 		return nil, resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "GetUserByID", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "GetUserByID", "data_access")
 	return &user, resState
 }
 
-func (ur *UserRepository) GetUserByLogin(loginOrFio string) (*models.User, *bl.MyError) {
+func (ur *UserRepository) GetUserByLogin(loginOrFio string) (*models.User, *myerrors.MyError) {
 	if loginOrFio == "" {
-		resState := bl.CreateError(bl.NoSuchUser, "GetUserByLogin", "data_access")
+		resState := myerrors.CreateError(myerrors.NoSuchUser, "GetUserByLogin", "data_access")
 		return nil, resState
 	}
 
@@ -92,29 +92,29 @@ func (ur *UserRepository) GetUserByLogin(loginOrFio string) (*models.User, *bl.M
 	)
 
 	if err != nil {
-		var resState *bl.MyError
+		var resState *myerrors.MyError
 
 		if errors.Is(err, sql.ErrNoRows) {
-			resState = bl.CreateError(bl.NoSuchUser, "GetUserByLogin", "data_access")
+			resState = myerrors.CreateError(myerrors.NoSuchUser, "GetUserByLogin", "data_access")
 		} else {
-			resState = bl.CreateError(bl.NoSuchUser, "GetUserByLogin", "data_access")
+			resState = myerrors.CreateError(myerrors.NoSuchUser, "GetUserByLogin", "data_access")
 		}
 
 		return nil, resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "GetUserByLogin", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "GetUserByLogin", "data_access")
 	return &user, resState
 }
 
-func (ur *UserRepository) GetAllUsers() ([]*models.User, *bl.MyError) {
+func (ur *UserRepository) GetAllUsers() ([]*models.User, *myerrors.MyError) {
 	query := fmt.Sprintf(getAllUsersQuery, "test_lab3")
 
 	rows, err := ur.db.QueryContext(context.Background(), query)
 	defer rows.Close()
 
 	if err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "GetAllUsers", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "GetAllUsers", "data_access")
 		return nil, resState
 	}
 
@@ -131,7 +131,7 @@ func (ur *UserRepository) GetAllUsers() ([]*models.User, *bl.MyError) {
 		)
 
 		if err != nil {
-			resState := bl.CreateError(bl.DatabaseError, "GetAllUsers", "data_access")
+			resState := myerrors.CreateError(myerrors.DatabaseError, "GetAllUsers", "data_access")
 			return nil, resState
 		}
 
@@ -139,17 +139,17 @@ func (ur *UserRepository) GetAllUsers() ([]*models.User, *bl.MyError) {
 	}
 
 	if err := rows.Err(); err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "GetAllUsers", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "GetAllUsers", "data_access")
 		return nil, resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "GetAllUsers", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "GetAllUsers", "data_access")
 	return users, resState
 }
 
-func (ur *UserRepository) AddUser(user *models.User) *bl.MyError {
+func (ur *UserRepository) AddUser(user *models.User) *myerrors.MyError {
 	if user == nil {
-		resState := bl.CreateError(bl.OperationError, "AddUser", "data_access")
+		resState := myerrors.CreateError(myerrors.OperationError, "AddUser", "data_access")
 		return resState
 	}
 
@@ -157,7 +157,7 @@ func (ur *UserRepository) AddUser(user *models.User) *bl.MyError {
 
 	tx, err := ur.db.BeginTx(context.Background(), nil)
 	if err != nil {
-		return bl.CreateError(bl.DatabaseError, "AddUser", "data_access")
+		return myerrors.CreateError(myerrors.DatabaseError, "AddUser", "data_access")
 	}
 	defer deferTransaction(err, tx)
 
@@ -170,17 +170,17 @@ func (ur *UserRepository) AddUser(user *models.User) *bl.MyError {
 	)
 
 	if err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "AddUser", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "AddUser", "data_access")
 		return resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "AddUser", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "AddUser", "data_access")
 	return resState
 }
 
-func (ur *UserRepository) DeleteUser(id int) *bl.MyError {
+func (ur *UserRepository) DeleteUser(id int) *myerrors.MyError {
 	if id < 0 {
-		resState := bl.CreateError(bl.OperationError, "DeleteUser", "data_access")
+		resState := myerrors.CreateError(myerrors.OperationError, "DeleteUser", "data_access")
 		return resState
 	}
 
@@ -188,23 +188,23 @@ func (ur *UserRepository) DeleteUser(id int) *bl.MyError {
 
 	tx, err := ur.db.BeginTx(context.Background(), nil)
 	if err != nil {
-		return bl.CreateError(bl.DatabaseError, "DeleteUser", "data_access")
+		return myerrors.CreateError(myerrors.DatabaseError, "DeleteUser", "data_access")
 	}
 	defer deferTransaction(err, tx)
 
 	_, err = tx.ExecContext(context.Background(), query, id)
 	if err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "DeleteUser", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "DeleteUser", "data_access")
 		return resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "DeleteUser", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "DeleteUser", "data_access")
 	return resState
 }
 
-func (ur *UserRepository) UpdateUser(user *models.User) *bl.MyError {
+func (ur *UserRepository) UpdateUser(user *models.User) *myerrors.MyError {
 	if user == nil {
-		resState := bl.CreateError(bl.OperationError, "UpdateUser", "data_access")
+		resState := myerrors.CreateError(myerrors.OperationError, "UpdateUser", "data_access")
 		return resState
 	}
 
@@ -212,7 +212,7 @@ func (ur *UserRepository) UpdateUser(user *models.User) *bl.MyError {
 
 	tx, err := ur.db.BeginTx(context.Background(), nil)
 	if err != nil {
-		return bl.CreateError(bl.DatabaseError, "UpdateUser", "data_access")
+		return myerrors.CreateError(myerrors.DatabaseError, "UpdateUser", "data_access")
 	}
 	defer deferTransaction(err, tx)
 
@@ -226,23 +226,23 @@ func (ur *UserRepository) UpdateUser(user *models.User) *bl.MyError {
 	)
 
 	if err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "UpdateUser", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "UpdateUser", "data_access")
 		return resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "UpdateUser", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "UpdateUser", "data_access")
 	return resState
 }
 
 
-func (ur *UserRepository) GetAllUsersData() ([]*models.User, *bl.MyError) {
+func (ur *UserRepository) GetAllUsersData() ([]*models.User, *myerrors.MyError) {
 	query := fmt.Sprintf(getAllUsersQuery, "test_lab3")
 
 	rows, err := ur.db.QueryContext(context.Background(), query)
 	defer rows.Close()
 
 	if err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "GetAllUsersData", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "GetAllUsersData", "data_access")
 		return nil, resState
 	}
 
@@ -259,7 +259,7 @@ func (ur *UserRepository) GetAllUsersData() ([]*models.User, *bl.MyError) {
 		)
 
 		if err != nil {
-			resState := bl.CreateError(bl.DatabaseError, "GetAllUsersData", "data_access")
+			resState := myerrors.CreateError(myerrors.DatabaseError, "GetAllUsersData", "data_access")
 			return nil, resState
 		}
 
@@ -267,10 +267,10 @@ func (ur *UserRepository) GetAllUsersData() ([]*models.User, *bl.MyError) {
 	}
 
 	if err := rows.Err(); err != nil {
-		resState := bl.CreateError(bl.DatabaseError, "GetAllUsersData", "data_access")
+		resState := myerrors.CreateError(myerrors.DatabaseError, "GetAllUsersData", "data_access")
 		return nil, resState
 	}
 
-	resState := bl.CreateError(bl.Ok, "GetAllUsersData", "data_access")
+	resState := myerrors.CreateError(myerrors.Ok, "GetAllUsersData", "data_access")
 	return users, resState
 }

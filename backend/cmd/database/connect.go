@@ -6,10 +6,10 @@ import (
 	"os"
 	"time"
 
-	"github.com/DionisPalpatin/ppo-and-db/tree/master/application/internal/data_access"
+	repos "github.com/DionisPalpatin/Tests-lab-3/tree/main/backend/internal/repos"
 )
 
-func Connect() data_access.IUserRepository {
+func Connect() repos.IUserRepository {
 	connString := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable",
 		os.Getenv("POSTGRES_USER"), os.Getenv("POSTGRES_DB"), os.Getenv("POSTGRES_PASSWORD"),
 		os.Getenv("POSTGRES_HOST"), "5432")
