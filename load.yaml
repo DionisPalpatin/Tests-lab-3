@@ -2,7 +2,7 @@ pools:
   - id: HTTP pool                    # pool name (for your choice)
     gun:
       type: http                     # gun type
-      target: localhost:8081         # gun target
+      target: localhost:8083         # gun target
     ammo:
       type: uri                      # ammo format
       file: ./ammo.uri               # ammo File

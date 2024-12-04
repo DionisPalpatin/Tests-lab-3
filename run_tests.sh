@@ -13,7 +13,7 @@ run_tests() {
     sed -i "s/target: localhost:[0-9]*/target: $target/" load.yaml
 
     # Выполняем тест
-    ./pandora_0.5.32_darwin_arm64 load.yaml
+    ./pandora_0.5.32_linux_amd64 load.yaml
 
     # Перемещаем результат в отдельный файл с указанием порта и номера прогона
     mv phout.log "phout/phout${port}_${i}.log"
