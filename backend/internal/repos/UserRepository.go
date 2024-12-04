@@ -18,7 +18,7 @@ type IUserRepository interface {
 	DeleteUser(id int) *myerrors.MyError
 	UpdateUser(user *models.User) *myerrors.MyError
 
-	GetAllUsersData() ([]*models.User, *myerrors.MyError)
+	GetAllUsersData() ([]models.User, *myerrors.MyError)
 }
 
 type UserRepository struct {
@@ -235,7 +235,7 @@ func (ur *UserRepository) UpdateUser(user *models.User) *myerrors.MyError {
 }
 
 
-func (ur *UserRepository) GetAllUsersData() ([]*models.User, *myerrors.MyError) {
+func (ur *UserRepository) GetAllUsersData() ([]models.User, *myerrors.MyError) {
 	query := fmt.Sprintf(getAllUsersQuery, "test_lab3")
 
 	rows, err := ur.db.QueryContext(context.Background(), query)
@@ -246,7 +246,8 @@ func (ur *UserRepository) GetAllUsersData() ([]*models.User, *myerrors.MyError) 
 		return nil, resState
 	}
 
-	var users []*models.User
+	users := make([]models.User, 0)
+
 	for rows.Next() {
 		var user models.User
 		err := rows.Scan(
@@ -263,7 +264,7 @@ func (ur *UserRepository) GetAllUsersData() ([]*models.User, *myerrors.MyError) 
 			return nil, resState
 		}
 
-		users = append(users, &user)
+		users = append(users, user)
 	}
 
 	if err := rows.Err(); err != nil {
